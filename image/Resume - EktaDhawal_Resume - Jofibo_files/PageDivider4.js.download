@@ -1,0 +1,1615 @@
+﻿/*!
+ * Pagedivider 4
+ */
+
+var sectionstart = 0;
+var sectionname = "";
+var maxHeight = 0;
+var splitdone = false;
+var pagesplit = false;
+var globaltemplateid = 0;
+var footerheight = 0;
+var debug = false;
+
+function CalcSidebarHeight(nextpage) {
+    var height = 0;
+
+    var previewselector = "#resume-preview";
+
+    if (nextpage === 3) {
+        previewselector = "#resume-preview2";
+    }
+
+    if (nextpage === 4) {
+        previewselector = "#resume-preview3";
+    }
+
+    if (nextpage === 5) {
+        previewselector = "#resume-preview4";
+    }
+
+    if (nextpage === 6) {
+        previewselector = "#resume-preview5";
+    }
+
+    $(previewselector + " .sidebar section").each(function () {
+        height = height + Math.ceil($(this).outerHeight(true));
+        //if (config.base.verboseLog) console.info("Sidebar item: " + $(this).attr("data-editsection") + ":" + Math.ceil($(this).outerHeight(true)));
+
+        if (config.base.verboseLog) {
+            console.info("Sidebar item: " + $(this).attr("data-editsection") + ":" + Math.ceil($(this).outerHeight(true)));
+
+            if (debug) $(this).append("<div class='debugsize-container'><div class='debugsize badge badge-primary'>" + Math.ceil($(this).outerHeight(true)) + " px</div></div>");
+        }
+    });
+
+    console.info("Sidebar totalheight: " + height);
+
+    return height;
+}
+
+function CalcMainHeight(nextpage) {
+    var height = 0;
+
+    var previewselector = "#resume-preview";
+
+    if (nextpage === 3) {
+        previewselector = "#resume-preview2";
+    }
+
+    if (nextpage === 4) {
+        previewselector = "#resume-preview3";
+    }
+
+    if (nextpage === 5) {
+        previewselector = "#resume-preview4";
+    }
+
+    if (nextpage === 6) {
+        previewselector = "#resume-preview5";
+    }
+
+    $(previewselector + " .main section").each(function () {
+
+        height = height + Math.ceil($(this).outerHeight(true));
+        if (config.base.verboseLog) {
+            console.info("Main item: " + $(this).attr("data-editsection") + ":" + Math.ceil($(this).outerHeight(true)));
+
+        }
+    });
+
+    if (config.base.verboseLog) console.info("Main totalheight: " + height);
+
+    return height;
+}
+
+function PageDivider(templateid, maxHeight, isPremium, isPreview, isLoggedIn, ispuser) {
+
+    globaltemplateid = templateid;
+
+    maxHeight = maxHeight;
+    if (config.base.verboseLog) console.info("Templateid: " + templateid);
+
+    footerheight = Math.ceil($("#resume-preview .template-footer .col").outerHeight(false)) + 10;
+
+    if (templateid !== 2 && templateid !== 11 && templateid !== 12) {
+        var personal = Math.ceil($(".personal-container").outerHeight(true));// + 150;//+ 43
+
+        var sidebar = CalcSidebarHeight(2);//$(".sidebar").outerHeight(true);
+        var main = CalcMainHeight(2);//$(".main").height(true);
+
+        if (config.base.verboseLog) {
+            console.info("Footerheight: " + footerheight);
+            console.info("Personal container: " + Math.ceil($(".personal-container").outerHeight(true)));
+            if(debug) $(".personal-container").append("<div class='debugsize-container'><div class='debugsize badge badge-primary'>" + Math.ceil($(".personal-container").outerHeight(true)) + " px</div></div>");
+
+            //$("#resume-preview [data-editsection=personalinformations]")
+
+            console.info("Personal Information: " + Math.ceil($("#resume-preview [data-editsection=personalinformations]").outerHeight(true)));
+
+            if (debug) $("#resume-preview [data-editsection=personalinformations]").append("<div class='debugsize-container'><div class='debugsize badge badge-primary'>" + Math.ceil($("#resume-preview [data-editsection=personalinformations]").outerHeight(true)) + " px</div></div>");
+
+            console.info("Profile: " + Math.ceil($("#resume-preview [data-editsection=profiles]").outerHeight(true)));
+
+            if (debug) $("#resume-preview [data-editsection=profiles]").append("<div class='debugsize-container'><div class='debugsize badge badge-primary'>" + Math.ceil($("#resume-preview [data-editsection=profiles]").outerHeight(true)) + " px</div></div>");
+        }
+
+        var tallestdiv = Math.max(sidebar, main);
+
+        if (config.base.verboseLog) console.info("Max height:" + maxHeight);
+        if (config.base.verboseLog) console.info("Tallest div:" + tallestdiv);
+        if (config.base.verboseLog) console.info("Personal: " + personal);
+        if (config.base.verboseLog) console.info("Sidebar: " + sidebar);
+        if (config.base.verboseLog) console.info("Main: " + main);
+
+        if (config.base.verboseLog) console.info("Personal and tallest: " + (personal + tallestdiv));
+
+        var templatestart = personal;
+
+        if (templateid === 3 || templateid === 10) {
+            templatestart = 0;
+        }
+
+        var totalpages = Math.ceil((templatestart + tallestdiv) / maxHeight);
+
+        if (config.base.verboseLog) console.info("Pages: " + totalpages);
+
+        if (totalpages > 1) {
+            totalpages = Math.ceil((((templatestart + tallestdiv) + (totalpages * footerheight)) + ((totalpages - 1) * 50)) / maxHeight);
+        }
+
+        if (totalpages > 6) {
+            totalpages = 6;
+        }
+
+        //PremiumFunction(totalpages, isPremium, isPreview, isLoggedIn, true, ispuser);
+
+        if (config.base.verboseLog) console.info("Pages: " + totalpages);
+
+        if (totalpages > 1) {
+
+            $("#resume-preview").clone().prop("id", "resume-preview2").appendTo("#resume-preview-container");
+
+            $("#resume-preview2 .personal-container").remove();
+            $("#resume-preview2 style").remove();
+
+            $("#resume-preview2 .page-no span").html("2/2");
+
+            $("#resume-preview2 .sidebar").empty();
+            $("#resume-preview2 .main").empty();
+
+            if (templatestart + tallestdiv + footerheight > maxHeight) {
+
+                if (config.base.verboseLog) console.info("Handle Sidebar:");
+
+                HandleSection("sidebar", maxHeight, templateid, 2);
+                HandleSection("main", maxHeight, templateid, 2);
+
+                if (templateid === 3) {
+                    $("#resume-preview .template-footer").clone().appendTo("#resume-preview2 .sidebar");
+                    $("#resume-preview2 .page-no span").html("2/2");
+                }
+
+                if (templateid === 6 || templateid === 10) {
+                    $("#resume-preview .template-footer").clone().appendTo("#resume-preview2 .main");
+                    $("#resume-preview2 .page-no span").html("2/2");
+                }
+
+                if (templateid == 10) {
+                    $("#resume-preview2 .main").html("<div class='main-container d-flex align-items-start flex-column'>" + $("#resume-preview2 .main").html());
+                }
+
+                sidebar = CalcSidebarHeight(3);
+                main = CalcMainHeight(3);
+
+                //footerheight = Math.ceil($("#resume-preview .template-footer").outerHeight(false));
+                if (config.base.verboseLog) console.info("Footerheight: " + footerheight);
+
+                tallestdiv = Math.max(sidebar, main);
+                if (config.base.verboseLog) console.info("Tallest div:" + tallestdiv);
+
+                if (tallestdiv + footerheight > maxHeight) {
+
+                    $("#resume-preview2").clone().prop("id", "resume-preview3").appendTo("#resume-preview-container");
+
+                    $("#resume-preview3 .personal-container").remove();
+                    $("#resume-preview3 style").remove();
+                    $("#resume-preview3 .sidebar").empty();
+                    $("#resume-preview3 .main").empty();
+                    $("#resume-preview3 [data-editsection='profiles']").remove();
+                    $("#resume-preview3 .page-no span").html("3/3");
+                    $("#resume-preview2 .page-no span").html("2/3");
+                    $("#resume-preview .page-no span").html("1/3");
+
+                    if (config.base.verboseLog) console.info("------ PAGE 3  -----------------------------------------------------------------");
+                    sectionstart = 0;
+                    splitdone = false;
+
+                    HandleSection("sidebar", maxHeight, templateid, 3);
+                    HandleSection("main", maxHeight, templateid, 3);
+
+                    if (templateid === 3) {
+                        $("#resume-preview .template-footer").clone().appendTo("#resume-preview3 .sidebar");
+                        $("#resume-preview .page-no span").html("1/3");
+                        $("#resume-preview2 .page-no span").html("2/3");
+                        $("#resume-preview3 .page-no span").html("3/3");
+                    }
+
+                    if (templateid === 6 || templateid === 10) {
+                        $("#resume-preview2 .template-footer").clone().appendTo("#resume-preview3 .main");
+                        $("#resume-preview3 .page-no span").html("3/3");
+                    }
+
+                    if (templateid == 10) {
+                        $("#resume-preview3 .main").html("<div class='main-container d-flex align-items-start flex-column'>" + $("#resume-preview3 .main").html());
+                    }
+                }
+
+                sidebar = CalcSidebarHeight(4);
+                main = CalcMainHeight(4);
+
+                tallestdiv = Math.max(sidebar, main);
+                if (config.base.verboseLog) console.info("Footerheight: " + footerheight);
+
+                if (tallestdiv + footerheight > maxHeight) {
+
+                    $("#resume-preview3").clone().prop("id", "resume-preview4").appendTo("#resume-preview-container");
+
+                    $("#resume-preview4 .personal-container").remove();
+                    $("#resume-preview4 style").remove();
+                    $("#resume-preview4 .sidebar").empty();
+                    $("#resume-preview4 .main").empty();
+                    $("#resume-preview4 [data-editsection='profiles']").remove();
+                    $("#resume-preview4 .page-no span").html("4/4");
+                    $("#resume-preview3 .page-no span").html("3/4");
+                    $("#resume-preview2 .page-no span").html("2/4");
+                    $("#resume-preview .page-no span").html("1/4");
+
+                    if (config.base.verboseLog) console.info("------ PAGE 4  ----------------------------------------------------------------");
+                    sectionstart = 0;
+                    splitdone = false;
+
+                    HandleSection("sidebar", maxHeight, templateid, 4)
+                    HandleSection("main", maxHeight, templateid, 4);
+
+                    if (templateid === 3) {
+
+                        $("#resume-preview .template-footer").clone().appendTo("#resume-preview4 .sidebar");
+                        $("#resume-preview .page-no span").html("1/4");
+                        $("#resume-preview2 .page-no span").html("2/4");
+                        $("#resume-preview3 .page-no span").html("3/4");
+                        $("#resume-preview4 .page-no span").html("4/4");
+                    }
+
+                    if (templateid === 6 || templateid === 10) {
+                        $("#resume-preview3 .template-footer").clone().appendTo("#resume-preview4 .main");
+                        $("#resume-preview4 .page-no span").html("4/4");
+                    }
+
+                    if (templateid == 10) {
+                        $("#resume-preview4 .main").html("<div class='main-container d-flex align-items-start flex-column'>" + $("#resume-preview4 .main").html());
+                    }
+                }
+
+
+                sidebar = CalcSidebarHeight(5);
+                main = CalcMainHeight(5);
+
+                tallestdiv = Math.max(sidebar, main);
+                if (config.base.verboseLog) console.info("Footerheight: " + footerheight);
+
+                if (tallestdiv + footerheight > maxHeight) {
+
+                    $("#resume-preview4").clone().prop("id", "resume-preview5").appendTo("#resume-preview-container");
+
+                    $("#resume-preview5 .personal-container").remove();
+                    $("#resume-preview5 style").remove();
+                    $("#resume-preview5 .sidebar").empty();
+                    $("#resume-preview5 .main").empty();
+                    $("#resume-preview5 [data-editsection='profiles']").remove();
+                    $("#resume-preview5 .page-no span").html("5/5");
+                    $("#resume-preview4 .page-no span").html("4/5");
+                    $("#resume-preview3 .page-no span").html("3/5");
+                    $("#resume-preview2 .page-no span").html("2/5");
+                    $("#resume-preview .page-no span").html("1/5");
+
+                    if (config.base.verboseLog) console.info("------ PAGE 5  ----------------------------------------------------------------");
+                    sectionstart = 0;
+                    splitdone = false;
+
+                    HandleSection("sidebar", maxHeight, templateid, 5)
+                    HandleSection("main", maxHeight, templateid, 5);
+
+                    if (templateid === 3) {
+
+                        $("#resume-preview .template-footer").clone().appendTo("#resume-preview5 .sidebar");
+                        $("#resume-preview .page-no span").html("1/5");
+                        $("#resume-preview2 .page-no span").html("2/5");
+                        $("#resume-preview3 .page-no span").html("3/5");
+                        $("#resume-preview4 .page-no span").html("4/5");
+                        $("#resume-preview5 .page-no span").html("5/5");
+                    }
+
+                    if (templateid === 6 || templateid === 10) {
+                        $("#resume-preview4 .template-footer").clone().appendTo("#resume-preview5 .main");
+                        $("#resume-preview5 .page-no span").html("5/5");
+                    }
+
+                    if (templateid == 10) {
+                        $("#resume-preview5 .main").html("<div class='main-container d-flex align-items-start flex-column'>" + $("#resume-preview5 .main").html());
+                    }
+                }
+
+                sidebar = CalcSidebarHeight(6);
+                main = CalcMainHeight(6);
+
+                tallestdiv = Math.max(sidebar, main);
+                if (config.base.verboseLog) console.info("Footerheight: " + footerheight);
+
+                if (tallestdiv + footerheight > maxHeight) {
+
+                    $("#resume-preview5").clone().prop("id", "resume-preview6").appendTo("#resume-preview-container");
+
+                    $("#resume-preview6 .personal-container").remove();
+                    $("#resume-preview6 style").remove();
+                    $("#resume-preview6 .sidebar").empty();
+                    $("#resume-preview6 .main").empty();
+                    $("#resume-preview6 [data-editsection='profiles']").remove();
+                    $("#resume-preview6 .page-no span").html("6/6");
+                    $("#resume-preview5 .page-no span").html("5/6");
+                    $("#resume-preview4 .page-no span").html("4/6");
+                    $("#resume-preview3 .page-no span").html("3/6");
+                    $("#resume-preview2 .page-no span").html("2/6");
+                    $("#resume-preview .page-no span").html("1/6");
+
+                    if (config.base.verboseLog) console.info("------ PAGE 6  ----------------------------------------------------------------");
+                    sectionstart = 0;
+                    splitdone = false;
+
+                    HandleSection("sidebar", maxHeight, templateid, 6)
+                    HandleSection("main", maxHeight, templateid, 6);
+
+                    if (templateid === 3) {
+
+                        $("#resume-preview .template-footer").clone().appendTo("#resume-preview6 .sidebar");
+                        $("#resume-preview .page-no span").html("1/6");
+                        $("#resume-preview2 .page-no span").html("2/6");
+                        $("#resume-preview3 .page-no span").html("3/6");
+                        $("#resume-preview4 .page-no span").html("4/6");
+                        $("#resume-preview5 .page-no span").html("5/6");
+                        $("#resume-preview6 .page-no span").html("6/6");
+                    }
+
+                    if (templateid === 6 || templateid === 10) {
+                        $("#resume-preview5 .template-footer").clone().appendTo("#resume-preview6 .main");
+                        $("#resume-preview6 .page-no span").html("6/6");
+                    }
+
+                    if (templateid == 10) {
+                        $("#resume-preview6 .main").html("<div class='main-container d-flex align-items-start flex-column'>" + $("#resume-preview6 .main").html());
+                    }
+                }
+            }
+
+            if (templateid === 3) {
+                //$("#resume-preview .template-footer").clone().appendTo("#resume-preview2 .sidebar");
+                //$("#resume-preview2 .page-no span").html("2/2");
+
+                if (totalpages === 3) {
+                    //$("#resume-preview .template-footer").clone().appendTo("#resume-preview3 .sidebar");
+                    //$("#resume-preview .page-no span").html("1/3");
+                    //$("#resume-preview2 .page-no span").html("2/3");
+                    //$("#resume-preview3 .page-no span").html("3/3");
+                }
+
+                if (totalpages >= 4) {
+                    //$("#resume-preview .template-footer").clone().appendTo("#resume-preview3 .sidebar");
+                    //$("#resume-preview .template-footer").clone().appendTo("#resume-preview4 .sidebar");
+                    //$("#resume-preview .page-no span").html("1/4");
+                    //$("#resume-preview2 .page-no span").html("2/4");
+                    //$("#resume-preview3 .page-no span").html("3/4");
+                    //$("#resume-preview4 .page-no span").html("4/4");
+                }
+
+                //if (totalpages === 5) {
+                //    $("#resume-preview .template-footer").clone().appendTo("#resume-preview3 .sidebar");
+                //    $("#resume-preview .template-footer").clone().appendTo("#resume-preview4 .sidebar");
+                //    $("#resume-preview .template-footer").clone().appendTo("#resume-preview5 .sidebar");
+                //    $("#resume-preview .page-no span").html("1/5");
+                //    $("#resume-preview2 .page-no span").html("2/5");
+                //    $("#resume-preview3 .page-no span").html("3/5");
+                //    $("#resume-preview4 .page-no span").html("4/5");
+                //    $("#resume-preview5 .page-no span").html("5/5");
+                //}
+
+                //templatestart = personal;
+            }
+        }
+        else {
+            $(".template-footer").remove();
+        }
+
+    }
+
+    if (templateid === 2 || templateid === 11 || templateid === 12) {
+        var personal = Math.ceil($(".personal-container").outerHeight(true));// + 150;//+ 43
+        var containerheight = CalcMainHeight(2);//$("template-5 .container .p-0").outerHeight(true);
+
+        //var footerheight = Math.ceil($("#resume-preview .template-footer .col").outerHeight(false));
+        if (config.base.verboseLog) console.info("Footerheight: " + footerheight);
+
+        var totalpages = Math.ceil((containerheight + footerheight + personal) / maxHeight);
+
+        if (totalpages > 6) {
+            totalpages = 6;
+        }
+
+        //PremiumFunction(totalpages, isPremium, isPreview, isLoggedIn, true, ispuser);
+
+        if (config.base.verboseLog) console.info("Pages: " + totalpages);
+
+        if (config.base.verboseLog) console.info("TEMPLATE 2");
+
+        if (totalpages > 1) {
+            $("#resume-preview").clone().prop("id", "resume-preview2").appendTo("#resume-preview-container");
+
+            $("#resume-preview2 .template-5 .w-100:first").remove();
+            $("#resume-preview2 .personal-container").remove();
+            $("#resume-preview2 .main").empty();
+            $("#resume-preview2 [data-editsection='profiles']").remove();
+            $("#resume-preview2 .page-no span").html("2/2");
+
+            HandleTemplate2(maxHeight, 2, 2);
+
+            main = CalcMainHeight(3);
+            if (config.base.verboseLog) console.info("Footerheight: " + footerheight);
+
+            if (config.base.verboseLog) console.info("Tallest div:" + main);
+
+            if ((main + footerheight) > maxHeight) {
+
+                $("#resume-preview2").clone().prop("id", "resume-preview3").appendTo("#resume-preview-container");
+
+                $("#resume-preview3 .personal-container").remove();
+                $("#resume-preview3 .main").empty();
+                $("#resume-preview3 [data-editsection='profiles']").remove();
+                $("#resume-preview3 .page-no span").html("3/3");
+                $("#resume-preview2 .page-no span").html("2/3");
+                $("#resume-preview .page-no span").html("1/3");
+                if (config.base.verboseLog) console.info("------ PAGE 3  --------");
+                sectionstart = 0;
+                splitdone = false;
+                HandleTemplate2(maxHeight, 2, 3);
+            }
+
+            main = CalcMainHeight(4);
+
+            if (config.base.verboseLog) console.info("Tallest div:" + main);
+
+            if ((main + footerheight) > maxHeight) {
+
+                $("#resume-preview3").clone().prop("id", "resume-preview4").appendTo("#resume-preview-container");
+
+                $("#resume-preview4 .main").empty();
+                $("#resume-preview4 .page-no span").html("4/4");
+                $("#resume-preview3 .page-no span").html("3/4");
+                $("#resume-preview2 .page-no span").html("2/4");
+                $("#resume-preview .page-no span").html("1/4");
+                if (config.base.verboseLog) console.info("------ PAGE 4  --------");
+                sectionstart = 0;
+                splitdone = false;
+                HandleTemplate2(maxHeight, 2, 4);
+            }
+
+            main = CalcMainHeight(5);
+
+            if (config.base.verboseLog) console.info("Tallest div:" + main);
+
+            if ((main + footerheight) > maxHeight) {
+
+                $("#resume-preview4").clone().prop("id", "resume-preview5").appendTo("#resume-preview-container");
+
+                $("#resume-preview5 .main").empty();
+                $("#resume-preview5 .page-no span").html("5/5");
+                $("#resume-preview4 .page-no span").html("4/5");
+                $("#resume-preview3 .page-no span").html("3/5");
+                $("#resume-preview2 .page-no span").html("2/5");
+                $("#resume-preview .page-no span").html("1/5");
+                if (config.base.verboseLog) console.info("------ PAGE 5  --------");
+                sectionstart = 0;
+                splitdone = false;
+                HandleTemplate2(maxHeight, 2, 5);
+            }
+
+            main = CalcMainHeight(6);
+
+            if (config.base.verboseLog) console.info("Tallest div:" + main);
+
+            if ((main + footerheight) > maxHeight) {
+
+                $("#resume-preview5").clone().prop("id", "resume-preview6").appendTo("#resume-preview-container");
+
+                $("#resume-preview6 .main").empty();
+                $("#resume-preview6 .page-no span").html("6/6");
+                $("#resume-preview5 .page-no span").html("5/6");
+                $("#resume-preview4 .page-no span").html("4/6");
+                $("#resume-preview3 .page-no span").html("3/6");
+                $("#resume-preview2 .page-no span").html("2/6");
+                $("#resume-preview .page-no span").html("1/6");
+                if (config.base.verboseLog) console.info("------ PAGE 6  --------");
+                sectionstart = 0;
+                splitdone = false;
+                HandleTemplate2(maxHeight, 2, 6);
+            }
+
+        }
+        else {
+            $(".template-footer").remove();
+        }
+    }
+
+    var previewheight = Math.ceil($("#resume-preview").outerHeight(true));
+    var previewheight2 = Math.ceil($("#resume-preview2").outerHeight(true) - 50);
+    var previewheight3 = Math.ceil($("#resume-preview3").outerHeight(true) - 50);
+    var previewheight4 = Math.ceil($("#resume-preview4").outerHeight(true) - 50);
+    var previewheight5 = Math.ceil($("#resume-preview5").outerHeight(true) - 50);
+    var previewheight6 = Math.ceil($("#resume-preview6").outerHeight(true) - 50);
+
+    $("#devdivheight").html(previewheight + "px");
+    $("#devdivheight2").html(previewheight2 + "px");
+    $("#devdivheight3").html(previewheight3 + "px");
+    $("#devdivheight4").html(previewheight4 + "px");
+    $("#devdivheight5").html(previewheight5 + "px");
+    $("#devdivheight6").html(previewheight6 + "px");
+
+    if (previewheight > 1698) {
+        $("#devdivheight").removeClass("badge-primary");
+        $("#devdivheight").addClass("badge-danger");
+    }
+    else {
+        $("#devdivheight").removeClass("badge-danger");
+        $("#devdivheight").addClass("badge-primary");
+    }
+
+    if (previewheight2 > 1698) {
+        $("#devdivheight2").removeClass("badge-primary");
+        $("#devdivheight2").addClass("badge-danger");
+    }
+    else {
+        $("#devdivheight2").removeClass("badge-danger");
+        $("#devdivheight2").addClass("badge-primary");
+    }
+
+    if (previewheight3 > 1698) {
+        $("#devdivheight3").removeClass("badge-primary");
+        $("#devdivheight3").addClass("badge-danger");
+    }
+    else {
+        $("#devdivheight3").removeClass("badge-danger");
+        $("#devdivheight3").addClass("badge-primary");
+    }
+
+    if (previewheight4 > 1698) {
+        $("#devdivheight4").removeClass("badge-primary");
+        $("#devdivheight4").addClass("badge-danger");
+    }
+    else {
+        $("#devdivheight4").removeClass("badge-danger");
+        $("#devdivheight4").addClass("badge-primary");
+    }
+
+    if (previewheight5 > 1698) {
+        $("#devdivheight5").removeClass("badge-primary");
+        $("#devdivheight5").addClass("badge-danger");
+    }
+    else {
+        $("#devdivheight5").removeClass("badge-danger");
+        $("#devdivheight5").addClass("badge-primary");
+    }
+
+    if (previewheight6 > 1698) {
+        $("#devdivheight6").removeClass("badge-primary");
+        $("#devdivheight6").addClass("badge-danger");
+    }
+    else {
+        $("#devdivheight6").removeClass("badge-danger");
+        $("#devdivheight6").addClass("badge-primary");
+    }
+}
+
+function HandleSection(sectionName, maxHeight, templateid, nextpage) {
+
+    var previewselector = "#resume-preview";
+    var nextpageselector = "#resume-preview2";
+
+    if (nextpage === 3) {
+        previewselector = "#resume-preview2";
+        nextpageselector = "#resume-preview3";
+    }
+
+    if (nextpage === 4) {
+        previewselector = "#resume-preview3";
+        nextpageselector = "#resume-preview4";
+    }
+
+    if (nextpage === 5) {
+        previewselector = "#resume-preview4";
+        nextpageselector = "#resume-preview5";
+    }
+
+    if (nextpage === 6) {
+        previewselector = "#resume-preview5";
+        nextpageselector = "#resume-preview6";
+    }
+
+    //var personal = Math.ceil($(".personal-container", previewselector).outerHeight(true));// + 150;
+    //var sectionHeight = $("." + sectionName + "").outerHeight(true);
+    var personal = Math.ceil($("#resume-preview [data-editsection=personalinformations]").outerHeight(true));
+
+    if (templateid === 4 || templateid === 9) {
+
+        var tmpprofile = Math.ceil($("#resume-preview [data-editsection=profiles]").outerHeight(true));               
+
+        if (isNaN(tmpprofile)) {
+            tmpprofile = 0;
+        }
+
+        personal = personal + tmpprofile;
+    }
+    else if (templateid === 6 || templateid === 10) {
+        personal = 0;
+        //if (sectionName === "sidebar") {
+
+        //    personal = personal = Math.ceil($("#resume-preview .personal-second").outerHeight(true)); 
+
+        //    if (config.base.verboseLog) console.info("Personal : " + personal); //sidebar-section
+
+        //    if (config.base.verboseLog) console.info("Personal outer: " + Math.ceil($("#resume-preview .personal-outer").outerHeight(true)));
+        //    //personal = Math.ceil($("#resume-preview [data-editsection=personalinformations] .sidebar-section ").outerHeight(true)); 
+        //    personal = personal + Math.ceil($("#resume-preview .personal-outer").outerHeight(true));
+        //}
+        //else {
+        //    personal = 0;
+        //}
+    }
+
+    if (nextpage > 2) {
+        personal = 0;
+    }
+
+    if (config.base.verboseLog) console.info("MaxHeight: " + maxHeight);
+    if (config.base.verboseLog) console.info("Personal: " + personal);
+    if (config.base.verboseLog) console.info("Footer: " + footerheight);
+
+    var sectionheight = (footerheight + personal);
+
+    sectionstart = (footerheight + personal);
+
+    if (templateid === 3) {
+
+        if (sectionName === "sidebar") {
+            sectionheight = footerheight;
+        }
+        else {
+            //sectionheight = personal;
+            //sectionstart = personal;
+            sectionheight = 0;
+            sectionstart = 0;
+        }
+
+    }
+
+    if (config.base.verboseLog) console.info("Section Start height: " + sectionheight);
+
+    var specialsectionname = ".main";
+    var specialsectiontitle = "section";
+
+    if (sectionName === "sidebar") {
+        specialsectionname = ".sidebar";
+        specialsectiontitle = "sidebar";
+    }
+
+    var allmoved = true;
+
+    $(previewselector + " " + specialsectionname + " section").each(function () {
+        if (config.base.verboseLog) {
+            console.info(sectionName + " item: " + $(this).attr("data-editsection") + ":" + Math.ceil($(this).outerHeight(true)));
+            if (debug) $(this).append("<div class='debugsize-container'><div class='debugsize badge badge-primary'>" + Math.ceil($(this).outerHeight(true)) + " px</div></div>");
+        }
+
+        sectionheight = sectionheight + Math.ceil($(this).outerHeight(true)) + 4;// + 75;
+
+        //console.info(sectionName + " sectionstart: " + sectionstart);
+        if (config.base.verboseLog) console.info(sectionName + " sectionheight: " + sectionheight);
+
+        sectionname = $(this).attr("data-editsection");
+
+        //console.info(sectionName + " height: " + sectionheight);
+
+        if ((sectionheight > maxHeight)) {
+
+            pagesplit = false;
+            if (config.base.verboseLog) console.info("Pagesplit: " + pagesplit);
+
+            if (config.base.verboseLog) console.info(sectionName + " cloning: " + $(this).attr("data-editsection"));
+            $(this).clone().appendTo(nextpageselector + " ." + sectionName + "");
+
+            if (config.base.verboseLog) console.info($(this).attr("data-editsection") + " outerheight: " + Math.ceil($(this).outerHeight(true)));
+
+            sectionstart = sectionheight - Math.ceil($(this).outerHeight(true));
+
+            if (config.base.verboseLog) console.info(sectionName + " title height: " + Math.ceil($(previewselector + " [data-editsection=" + sectionname + "] [class$=-title]").outerHeight(true)));
+            sectionstart = sectionstart + Math.ceil($(previewselector + " [data-editsection=" + sectionname + "] [class$=-title]").outerHeight(true));
+
+            sectionstart = sectionstart + 32;
+
+            if (config.base.verboseLog) console.info(sectionName + " startheight: " + sectionstart);
+
+            //console.info(sectionName);
+            var removesidebartitle = true;
+
+            //Normal sidebars
+            if (sectionName === "sidebar") {
+
+                if (sectionname === "customsections") {
+                    removesidebartitle = HandleSectionSplit($(this), maxHeight, previewselector, nextpageselector, sectionName);
+                }
+                else {
+                    removesidebartitle = HandleParagraphSplit($(this), maxHeight, previewselector, nextpageselector);
+                }
+
+                if (removesidebartitle) {
+
+                    console.info("Delete title: " + removesidebartitle);
+
+                    if (sectionname == "customsections") {
+                        //$("#resume-preview [data-editsection=" + sectionname + "] [data-id=" + $(this).attr("data-id") + "]").remove();
+                        $(this).remove();
+                    }
+                    else {
+                        $(previewselector + " [data-editsection=" + sectionname + "] .section-title").remove();
+                        $(previewselector + " [data-editsection=" + sectionname + "] .sidebar-title").remove();
+                    }
+                }
+            }
+
+
+            if (sectionName === "main") {
+
+                var removemaintitle = true;
+                splitdone = false;
+
+                $(".section-item", this).each(function () {
+
+                    console.info("Split done: " + splitdone);
+                    removemaintitle = HandleSectionSplit($(this), maxHeight, previewselector, nextpageselector, sectionName);
+
+                    if (templateid === 7) {
+                        if (config.base.verboseLog) console.info("Adding divider height: 27px");
+                        sectionstart = sectionstart + 27;
+                    }
+                });
+
+                //if (pagesplit === true) {
+                //    removemaintitle = false;
+                //}
+
+                if (removemaintitle) {
+                    if (config.base.verboseLog) console.info("Deleting title: " + sectionname);
+                    if (config.base.verboseLog) console.info("All moved?: " + allmoved);
+
+                    if (sectionname == "customsections") {
+                        //$("#resume-preview [data-editsection=" + sectionname + "] [data-id=" + $(this).attr("data-id") + "]").remove();
+                        $(this).remove();
+                    }
+                    else {
+                        //$(previewselector + " [data-editsection=" + sectionname + "] .section-title").remove();
+                    }
+
+                    //if (allmoved === true) {
+                    //    {
+                    //        $(this).remove();
+                    //    }
+                    //}
+                }
+                else {
+                    console.info("All moved?: " + allmoved);
+                    if (allmoved === true) {
+                        //$(previewselector + " [data-editsection=" + sectionname + "] .section-title").remove();
+                    }
+                }
+
+                //$(nextpageselector + " .main").html("<div/>" + $(nextpageselector + " .main").html());
+            }
+
+            if (config.base.verboseLog) console.info("Main Length section: " + $(".section-item", $(nextpageselector + " [data-editsection=" + sectionname + "]")).length);
+            if (config.base.verboseLog) console.info("Sidebar Length section: " + $(".sidebar-paragraph", $(nextpageselector + " [data-editsection=" + sectionname + "]")).length);
+
+            if (sectionname != "customsections" && ($(".section-item", $(nextpageselector + " [data-editsection=" + sectionname + "]")).length === 0 && $(".sidebar-paragraph", $(nextpageselector + " [data-editsection=" + sectionname + "]")).length === 0)) {
+                //if (config.base.verboseLog) console.info("Deleting nextpage section: " + sectionname);
+                //    if (sectionname != "customsections" || sectionname != "hobbies") {
+                //$(nextpageselector + " [data-editsection=" + sectionname + "]").remove();
+                //    }
+            }
+
+            if (sectionname != "customsections" && ($(".section-item", $(this)).length === 0 && $(".sidebar-paragraph", $(this)).length === 0)) {
+
+                if (config.base.verboseLog) console.info("Deleting section: " + sectionname);
+                //    if (sectionname != "customsections" || sectionname != "hobbies") {
+                $(previewselector + " [data-editsection=" + sectionname + "]").remove();
+                //    }
+            }
+
+            if (config.base.verboseLog) {
+                if (debug) $("#resume-preview [data-editsection=hobbies]").append("<div class='debugsize-container'><div class='debugsize badge badge-primary'>" + Math.ceil($("#resume-preview [data-editsection=hobbies]").outerHeight(true)) + " px</div></div>");
+                console.info(sectionName + " handle DONE");
+            }
+        }
+    });
+
+    sectionstart = 0;
+}
+
+function HandleTemplate2(maxHeight, templateid, nextpage) {
+
+    var previewselector = "#resume-preview";
+    var nextpageselector = "#resume-preview2";
+
+    //if (nextpage > 2) {
+    //    previewselector = "#resume-preview" + nextpage;
+    //    nextpageselector = "#resume-preview" + nextpage +1;
+    //}
+
+    if (nextpage === 3) {
+        previewselector = "#resume-preview2";
+        nextpageselector = "#resume-preview3";
+    }
+
+    if (nextpage === 4) {
+        previewselector = "#resume-preview3";
+        nextpageselector = "#resume-preview4";
+    }
+
+    if (nextpage === 5) {
+        previewselector = "#resume-preview4";
+        nextpageselector = "#resume-preview5";
+    }
+
+    if (nextpage === 6) {
+        previewselector = "#resume-preview5";
+        nextpageselector = "#resume-preview6";
+    }
+
+    // var personal = Math.ceil($(".personal-container").outerHeight(true));// + 75;
+    var personal = Math.ceil($("#resume-preview [data-editsection=profiles]").outerHeight(true));
+    personal = personal + Math.ceil($("#resume-preview [data-editsection=personalinformations]").outerHeight(true));
+
+    var sectionHeight = Math.ceil($(".main").outerHeight(true));
+
+    //var sectionheight = Math.ceil($(previewselector + " .template-footer .col").outerHeight(true));
+    var sectionheight = footerheight;
+
+    if (config.base.verboseLog) console.info("Start height: " + sectionheight);
+    if (config.base.verboseLog) console.info("MAX height: " + maxHeight);
+
+    $(previewselector + " section").each(function () {
+        //console.info("Template2 item: " + $(this).attr("data-editsection") + ":" + $(this).outerHeight(true));
+
+        if (config.base.verboseLog) console.info($(this).attr("data-editsection") + " outerheight: " + $(this).outerHeight(true));
+
+        sectionheight = sectionheight + Math.ceil($(this).outerHeight(true)) + 8;
+
+        sectionname = $(this).attr("data-editsection");
+
+        if (debug) $(this).append("<div class='debugsize-container'><div class='debugsize badge badge-primary'>" + Math.ceil($(this).outerHeight(true)) + " px</div></div>");
+
+        if (config.base.verboseLog) console.info($(this).attr("data-editsection") + " height: " + sectionheight);
+
+        //sectionname = $(this).attr("data-editsection");
+
+        if (config.base.verboseLog) console.info("Sectionname: " + sectionname);
+
+        if (sectionheight > maxHeight) {
+            if (config.base.verboseLog) console.info("Cloning: " + $(this).attr("data-editsection") + " " + $(this).attr("data-id"));
+            $(this).clone().appendTo(nextpageselector + " .main");
+
+            sectionstart = sectionheight - Math.ceil($(this).outerHeight(true));
+
+            if (config.base.verboseLog) console.info(sectionname + " title height: " + Math.ceil($(nextpageselector + " [data-editsection=" + sectionname + "] [class$=-title]").outerHeight(true)));
+            sectionstart = sectionstart + Math.ceil($(nextpageselector + " [data-editsection=" + sectionname + "] [class$=-title]").outerHeight(true));
+
+            pagesplit = false;
+            //if (templateid === 1) {
+            //    sectionstart = sectionstart + 24;
+            //}
+            //else {
+            sectionstart = sectionstart + 28;
+            //}
+
+            if (config.base.verboseLog) console.info($(this).attr("data-editsection") + " section start: " + sectionstart);
+
+            var fixedstart = sectionstart;
+
+            //sectionstart = sectionstart + $("#resume-preview2 [data-editsection=" + sectionname + "] .section-title").outerHeight(true);
+
+            if (config.base.verboseLog) console.info("Start: " + sectionstart);
+
+            var removemaintitle = true;
+
+            if (sectionname === "skills" || sectionname === "languages") //
+            {
+                removemaintitle = HandleSectionSplit($(this), maxHeight, previewselector, nextpageselector, "main");
+            }
+            else {
+                splitdone = false;
+
+                $(".section-item", this).each(function () {
+
+                    removemaintitle = HandleSectionSplit($(this), maxHeight, previewselector, nextpageselector, "main");
+
+                });
+            }
+
+            if (config.base.verboseLog) console.info("Remove main title: " + removemaintitle);
+            if (config.base.verboseLog) console.info("Pagesplit: " + pagesplit);
+            if (pagesplit) { removemaintitle = false; }
+
+            if (removemaintitle) {
+                if (config.base.verboseLog) console.info("Remove title: " + sectionname);
+                //$("#resume-preview [data-editsection=" + sectionname + "]").remove();
+
+                if (sectionname === "customsections") {
+                    //$("#resume-preview [data-editsection=" + sectionname + "] [data-id=" + $(this).attr("data-id") + "]").remove();
+                    if (config.base.verboseLog) console.info("Removing custom section " + sectionname);
+                    $(this).remove();
+                }
+                else if (sectionname === "educations") {
+                    //$("#resume-preview [data-editsection=" + sectionname + "] [data-id=" + $(this).attr("data-id") + "]").remove();
+                    if (config.base.verboseLog) console.info("Removing education " + sectionname);
+                    $(this).remove();
+                }
+                else {
+                    if (config.base.verboseLog) console.info("Removing section " + sectionname);
+                    $(previewselector + " [data-editsection=" + sectionname + "] .section-title").remove();
+                }
+            }
+
+            if (fixedstart + 30 > maxHeight) {
+                if (config.base.verboseLog) console.info("Section start is higher than maxheight: " + sectionname);
+
+                if (sectionname == "customsections") {
+                    if (config.base.verboseLog) console.info("Deleting customsections: " + sectionname + " id: " + $(this).attr("data-id"));
+                    // $("#resume-preview [data-editsection=" + sectionname + "] [data-id=" + $(this).attr("data-id") + "]").remove();
+                    //$("#resume-preview [data-editsection=" + sectionname + "] [data-id=" + $(this).attr("data-id") + "]").remove();
+                    $(this).remove();
+                }
+                else {
+                    if (config.base.verboseLog) console.info("Removing selector: " + previewselector + " : section: " + sectionname);
+                    $(previewselector + " [data-editsection=" + sectionname + "]").remove();
+
+                }
+            }
+        }
+    });
+
+    if (config.base.verboseLog) console.info("Template 2 handle DONE");
+}
+
+function HandleSectionSplit(thisObj, maxHeight, previewselector, nextpageselector, sectionName) {
+    var result = true;
+
+    if (config.base.verboseLog) console.info("Split done: " + splitdone);
+    if (config.base.verboseLog) console.info("Max height: " + maxHeight);
+
+    sectionstart = sectionstart + Math.ceil(thisObj.outerHeight(true)) + 2;
+    if (config.base.verboseLog) console.info("Subsection height: " + Math.ceil(thisObj.outerHeight(true)));
+    if (config.base.verboseLog) console.info("Subsectionstart: " + sectionname + " and item: " + sectionstart);
+
+    if (sectionstart < maxHeight) {
+
+        $(nextpageselector + " [data-editsection=" + sectionname + "] [data-id=" + thisObj.attr("data-id") + "]").remove();
+        $(nextpageselector + " [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.attr("data-id") + "]").remove();
+
+        if (sectionname === "languages") //|| sectionname === "projects" || sectionname === "competencies"       sectionname === "hobbies" || || sectionname === "projects"
+        {
+            $(nextpageselector + " [data-editsection=" + sectionname + "]").remove();
+            if (config.base.verboseLog) console.info("Nextpage Remove: " + sectionname + ": from " + nextpageselector);
+        }
+
+        if (config.base.verboseLog) console.info("Nextpage Remove: " + sectionname + " id: " + thisObj.attr("data-id"));
+        result = false;
+        allmoved = false;
+    }
+    else {
+        result = false;
+
+        pagesplit = true;
+
+        if (config.base.verboseLog) console.info("Title remove: " + thisObj.attr("data-id"));
+
+        // *******************************************
+        var selector = ".section-item-text";
+
+        if ((sectionname === "customsections" || sectionname === "hobbies") && globaltemplateid != 2) {
+
+            if (sectionName === "sidebar") {
+                selector = ".sidebar-text";
+            }
+        }
+
+        if (sectionname === "languages" && globaltemplateid === 7) {
+            $(previewselector + " [data-editsection=" + sectionname + "]").remove();
+            if (config.base.verboseLog) console.info("Remove: " + sectionname + ": from " + nextpageselector);
+        }
+
+        var divdifference = 0;
+        var childcount = 0;
+
+        if (config.base.verboseLog) console.info("Selector: " + selector);
+
+        $(selector, thisObj).children().each(function () {
+
+            if (config.base.verboseLog) console.info("Child: " + $(this).prop("tagName"));
+
+            if ($(this).prop("tagName") === "UL") {
+                $("li", $(this)).each(function () {
+                    childcount++;
+                });
+            }
+            else if ($(this).prop("tagName") === "DIV") {
+                $("div", $(this)).children().each(function () {
+                    childcount++;
+                });
+            }
+            else {
+                childcount++;
+            }
+
+            divdifference = divdifference + Math.ceil($(this).outerHeight(true));
+        });
+
+        if (divdifference < Math.ceil(thisObj.outerHeight(true))) {
+
+            if (sectionname !== "hobbies") {
+                sectionstart = sectionstart + (Math.ceil(thisObj.outerHeight(true)) - divdifference);
+            }
+        }
+
+        if (config.base.verboseLog) console.info("Childcount: " + childcount);
+        if (config.base.verboseLog) console.info("Div difference: " + divdifference);
+
+        // *******************************************
+
+        if (sectionname === "skills") {
+            splitdone = true;
+        }
+
+        if (!splitdone) {
+
+            //if (sectionname === "customsections") {
+            //    // $("#resume-preview2 [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.attr("data-id") + "]").find(".sidebar-title").first().remove();               
+            //}
+            //else {
+
+                if (childcount === 1) {
+                    $(previewselector + " [data-editsection=" + sectionname + "] [data-id=" + thisObj.attr("data-id") + "]").remove();
+                }
+                else {
+
+                    if (config.base.verboseLog) console.info("Pagesplit: " + pagesplit);
+
+                    //if (pagesplit === false) {
+                    //    $(nextpageselector + " [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.attr("data-id") + "]").find(".section-item-title").first().remove();
+                    //    $(nextpageselector + " [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.attr("data-id") + "]").find(".section-item-subtitle").first().remove();
+                    //    $(nextpageselector + " [data-editsection=" + sectionname + "] [data-id=" + thisObj.attr("data-id") + "] .section-item-subtitle").first().remove();
+                    //    $(nextpageselector + " [data-editsection=" + sectionname + "] .sidebar-title").first().remove();
+                    //}
+
+                    //$("#resume-preview2 [data-editsection=" + sectionname + "] [data-id=" + $(this).attr("data-id") + "] .section-item-text").empty();
+
+                }
+            //}
+        }
+
+        if (config.base.verboseLog) console.info("Split done: " + splitdone);
+
+        if (splitdone) {
+            $(previewselector + " [data-editsection=" + sectionname + "] [data-id=" + thisObj.attr("data-id") + "]").remove();
+
+            $(previewselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.attr("data-id") + "]").remove();
+
+            //if (sectionname === "hobbies" || sectionname === "languages") {
+            //    if (config.base.verboseLog) console.info("Section name: " + sectionname);
+            //    $(previewselector + " [data-editsection=" + sectionname + "]").remove();
+            //}
+
+            if (sectionname === "skills") {
+                if (config.base.verboseLog) console.info("Section name: " + sectionname);
+                $(previewselector + " [data-editsection=" + sectionname + "]").remove();
+            }
+
+
+            //$(previewselector + " [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.attr("data-id") + "]").remove();
+
+            if (config.base.verboseLog) console.info("Nextpage: " + nextpageselector + " : id=" + thisObj.attr("data-id"));
+
+            //$(nextpageselector + " [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.attr("data-id") + "]").find(".section-item-title").first().remove();
+            //$(nextpageselector + " [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.attr("data-id") + "]").find(".section-item-subtitle").first().remove();
+            //$(nextpageselector + " [data-editsection=" + sectionname + "] [data-id=" + thisObj.attr("data-id") + "] .section-item-subtitle").first().remove();
+            //$(nextpageselector + " [data-editsection=" + sectionname + "] .sidebar-title").first().remove();
+
+        }
+        else {
+
+            if (config.base.verboseLog) console.info("Section name: " + sectionName);
+
+            var titleheight = Math.ceil(thisObj.find(".section-item-title").outerHeight(true));
+            var subtitleheight = Math.ceil(thisObj.find(".section-item-subtitle").outerHeight(true));
+
+            if (sectionname === "customsections" || sectionname === "hobbies" || sectionname === "languages") {
+                //    titleheight = Math.ceil(thisObj.find(".sidebar-title").outerHeight(true));
+                //    subtitleheight = 0;//thisObj.find(".section-title").outerHeight(true);
+
+                if (sectionName === "main") {
+                    titleheight = Math.ceil(thisObj.parents().find(".section-title").outerHeight(true));
+                }
+
+                titleheight = parseInt(titleheight) || 0;
+
+                if (titleheight === 0) {
+                    titleheight = Math.ceil(thisObj.find(".section-title").outerHeight(true));
+                }
+            }
+
+            titleheight = parseInt(titleheight) || 0;
+            subtitleheight = parseInt(subtitleheight) || 0;
+
+            if (config.base.verboseLog) console.info("TITLE HEIGHT: " + titleheight);
+            if (config.base.verboseLog) console.info("SUB TITLE HEIGHT: " + subtitleheight);
+
+            sectionstart = sectionstart - Math.ceil(thisObj.outerHeight(true)) + titleheight + subtitleheight;
+            if (config.base.verboseLog) console.info("Sectionstart : " + sectionstart);
+
+            var sectiontext = ""; //$("#resume-preview [data-editsection=" + sectionname + "] [data-id=" + $(this).attr("data-id") + "] .section-item-text").html();
+            var sectiontextsplit = ""; //$("#resume-preview2 [data-editsection=" + sectionname + "] [data-id=" + $(this).attr("data-id") + "] .section-item-text").html();
+
+
+            //if (childcount < 2) {
+            //    sectionstart = sectionstart + 100;
+            //}           
+
+            //section-item-text
+            $(selector, thisObj).children().each(function () {
+
+                var thisheight = Math.ceil($(this).outerHeight(true));
+                if (config.base.verboseLog) console.info("This height: " + thisheight);
+
+                if ($(this).prop("tagName") === "UL") {
+                    thisheight = Math.ceil($(this).prev().outerHeight(true));
+                }
+
+                if (!$.isNumeric(thisheight))
+                    thisheight = 0;// $(this).outerHeight(true);
+
+                if (config.base.verboseLog) console.info("TAGNAME: " + $(this).prop("tagName") + " : " + $(this).html());
+
+                sectionstart = sectionstart + thisheight;
+
+                if (config.base.verboseLog) console.info("This height: " + thisheight);
+                if (config.base.verboseLog) console.info("Sectiontext start: " + sectionstart);
+
+                var count = 0;
+
+                if (sectionstart < maxHeight) {
+
+                    var thistagname = "";
+
+                    if (count === 0) {
+                        thistagname = $(this).prop('tagName');
+                    }
+                    else {
+                        thistagname = $(this).prev().prop('tagName');
+                    }
+
+                    splitdone = true;
+
+                    if (config.base.verboseLog) console.info("UL P: " + thistagname);
+
+                    var tmplist = "";
+                    var tmplistsplit = "";
+
+                    if (thistagname === "UL") {
+
+                        $("li", $(this)).each(function (e) {
+                            //console.info("UL Child: " + Math.ceil($(this).outerHeight(true)));
+
+                            sectionstart = sectionstart + Math.ceil($(this).outerHeight(true));
+
+                            //console.info("LI start: " + sectionstart);
+
+                            if (sectionstart < maxHeight) {
+                                //tmplist = tmplist + "<li>" + $(this).html() + "</li>";
+                                tmplist = tmplist + $(this).prop('outerHTML')
+                                console.info("LI <: " + Math.ceil($(this).outerHeight(true)));
+                                //listsplit.eq($(this).index()).remove;
+                                //var replacetmp = $(this).html();
+                                //sectiontextsplit = sectiontextsplit.replace(replacetmp, "");
+
+                            }
+                            else {
+                                tmplistsplit = tmplistsplit + $(this).prop('outerHTML');
+                                //list.eq($(this).index()).remove;
+                                //var replacetmp = $(this).html();
+                                //sectiontext = sectiontext.replace(replacetmp, "");                                
+                            }
+
+                            //e.remove();
+                        });
+
+                        sectiontext = sectiontext + "<ul>" + tmplist + "</ul>";
+                        sectiontextsplit = sectiontextsplit + "<ul>" + tmplistsplit + "</ul>";
+
+                        if (sectiontext === "<ul></ul>") {
+                            sectiontext = "";
+                        }
+
+                        sectiontextsplit = sectiontextsplit.replace("<ul></ul>", "");
+
+                    }
+                    else {
+                        //console.info("None UL adding: " + $(this).html());
+
+                        try {
+                            sectiontext = sectiontext + $(this)[0].outerHTML;
+                        } catch (e) {
+                            sectiontext = sectiontext + $(this).html();
+                        }
+                    }
+                }
+                else {
+                    sectiontextsplit = sectiontextsplit + $(this)[0].outerHTML;
+                    splitdone = true;
+                    //$("#resume-preview [data-editsection=" + sectionname + "] [data-id=" + $(this).attr("data-id") + "]").remove();
+                }
+
+                count++;
+            });
+
+            if (sectiontext === "") {
+                splitdone = false;
+                if (config.base.verboseLog) console.info("Obj id: " + thisObj.attr("data-id"));
+                $(previewselector + " [data-editsection=" + sectionname + "] [data-id=" + thisObj.attr("data-id") + "]").remove();
+            }
+            else {
+                $(nextpageselector + " [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.attr("data-id") + "]").find(".section-item-title").first().remove();
+                $(nextpageselector + " [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.attr("data-id") + "]").find(".section-item-subtitle").first().remove();
+                $(nextpageselector + " [data-editsection=" + sectionname + "] [data-id=" + thisObj.attr("data-id") + "] .section-item-subtitle").first().remove();
+                $(nextpageselector + " [data-editsection=" + sectionname + "] .sidebar-title").first().remove();
+
+                allmoved = false;
+            }
+
+            //Set sectiontext
+            if (config.base.verboseLog) console.info("sectiontext: " + sectiontext);
+            if (config.base.verboseLog) console.info("sectiontextsplit: " + sectiontextsplit);
+
+            if (sectionname === "customsections") {
+                if (config.base.verboseLog) console.info("Customsection: " + sectionname + " : " + thisObj.parent().attr("data-id"));
+                if (config.base.verboseLog) console.info("Customsection: " + sectionname + " : " + thisObj.attr("data-id"));
+
+                $(previewselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.attr("data-id") + "] .sidebar-text").empty();
+                $(previewselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.attr("data-id") + "] .sidebar-text").html(sectiontext);
+                $(nextpageselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.attr("data-id") + "] .sidebar-text").html(sectiontextsplit);
+
+                $(previewselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.parent().attr("data-id") + "] .section-item-text").empty();
+                $(previewselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.parent().attr("data-id") + "] .section-item-text").html(sectiontext);
+                $(nextpageselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.parent().attr("data-id") + "] .section-item-text").html(sectiontextsplit);
+
+                $(previewselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.attr("data-id") + "] .section-item-text").empty();
+                $(previewselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.attr("data-id") + "] .section-item-text").html(sectiontext);
+                $(nextpageselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.attr("data-id") + "] .section-item-text").html(sectiontextsplit);
+            }
+            else if (sectionname === "hobbies" && sectionName === "sidebar") {
+                if (config.base.verboseLog) console.info("Customsection: " + sectionname + " and " + sectionName + " and id:" + thisObj.parent().attr("data-id"));
+
+                $(previewselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.parent().attr("data-id") + "] .sidebar-paragraph .sidebar-text").empty();
+                $(previewselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.parent().attr("data-id") + "] .sidebar-paragraph .sidebar-text").html(sectiontext);
+                $(nextpageselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.parent().attr("data-id") + "] .sidebar-paragraph .sidebar-text").html(sectiontextsplit);
+
+                $(previewselector + " [data-editsection=" + sectionname + "] .sidebar-paragraph .sidebar-text").empty();
+                $(previewselector + " [data-editsection=" + sectionname + "] .sidebar-paragraph .sidebar-text").html(sectiontext);
+                $(nextpageselector + " [data-editsection=" + sectionname + "] .sidebar-paragraph .sidebar-text").html(sectiontextsplit);
+
+                $(previewselector + " [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.parent().attr("data-id") + "]").find(".section-item-text").empty();
+                $(previewselector + " [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.parent().attr("data-id") + "]").find(".section-item-text").html(sectiontext);
+                $(nextpageselector + " [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.parent().attr("data-id") + "]").find(".section-item-text").html(sectiontextsplit);
+            }
+            else {
+
+                if (config.base.verboseLog) console.info("Preview: " + previewselector + " / nextpage: " + nextpageselector);
+
+                $(previewselector + " [data-editsection=" + sectionname + "] [data-id=" + thisObj.attr("data-id") + "] .section-item-text").empty();
+                $(previewselector + " [data-editsection=" + sectionname + "] [data-id=" + thisObj.attr("data-id") + "] .section-item-text").html(sectiontext);
+                $(nextpageselector + " [data-editsection=" + sectionname + "] [data-id=" + thisObj.attr("data-id") + "] .section-item-text").html(sectiontextsplit);
+
+                if (sectionname === "references") {
+                    $(previewselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.parent().attr("data-id") + "] .section-item").empty();
+                    $(previewselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.parent().attr("data-id") + "] .section-item").html(sectiontext);
+                    $(nextpageselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.parent().attr("data-id") + "] .section-item").html(sectiontextsplit);
+                }
+
+            }
+
+            if (sectiontext === "" && splitdone === false) {
+                result = true;
+
+                if (sectionname === "customsections" || sectionname === "references") {
+                    result = true;
+                }
+
+                $(previewselector + " [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.attr("data-id") + "]").find(".section-item-title").first().remove();
+                $(previewselector + " [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.attr("data-id") + "]").find(".section-item-subtitle").first().remove();
+
+                if (globaltemplateid === 2 || globaltemplateid === 5 || globaltemplateid === 7) {
+                    $(previewselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.parent().attr("data-id") + "]").remove();
+
+                    if (globaltemplateid === 7) {
+                        //$(previewselector + " [data-editsection=" + sectionname + "][data-id=" + thisObj.attr("data-id") + "]").remove();
+                    }
+
+                    if (config.base.verboseLog) console.info("Removing: " + previewselector + " : " + sectionname + " Data: " + thisObj.parent().attr("data-id"));
+
+                    if (sectionname === "languages" || sectionname === "skills" || sectionname === "profiles" || sectionname === "references" || sectionname === "hobbies" || sectionname === "educations" || sectionname === "employments") //|| sectionname === "projects" || sectionname === "competencies"
+                    {
+                        if (sectionname === "languages" && globaltemplateid === 5) {
+                            pagesplit = false;
+                        }
+
+                        if (config.base.verboseLog) console.info("Pagesplit: " + pagesplit);
+
+                        if (pagesplit === false) {
+                            $(previewselector + " [data-editsection=" + sectionname + "]").remove();
+                        }
+                    }
+                }
+
+                if (sectionname === "projects" || sectionname === "competencies" || sectionname === "employments") {
+                    if (config.base.verboseLog) console.info("Item count: " + $(previewselector + " [data-editsection=" + sectionname + "] .section-item").children().length);
+
+                    if ($(previewselector + " [data-editsection=" + sectionname + "] .section-item").children().length === 0) {
+                        $(previewselector + " [data-editsection=" + sectionname + "]").remove();
+                    }
+                }
+
+                //$(previewselector + " [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.parent().attr("data-id") + "]").remove();
+            }
+        }
+    }
+
+    return result;
+}
+
+function HandleParagraphSplit(thisObj, maxHeight, previewselector, nextpageselector) {
+    var result = true;
+
+    if (config.base.verboseLog) console.info("Split done: " + splitdone);
+
+    sectionstart = sectionstart + Math.ceil(thisObj.outerHeight(true));
+    if (config.base.verboseLog) console.info("Subsection height: " + Math.ceil(thisObj.outerHeight(true)));
+    if (config.base.verboseLog) console.info("Subsectionstart: " + sectionname + " and item: " + sectionstart);
+
+    if (sectionstart < maxHeight) {
+
+        $(nextpageselector + " [data-editsection=" + sectionname + "] [data-id=" + thisObj.attr("data-id") + "]").remove();
+        if (config.base.verboseLog) console.info("Remove: " + sectionname + " id: " + thisObj.attr("data-id"));
+        result = false;
+        allmoved = false;
+    }
+    else {
+        //removemaintitle = false;
+        //console.info("Title remove: " + thisObj.attr("data-id"));
+
+        if (splitdone) {
+            $(previewselector + " [data-editsection=" + sectionname + "] [data-id=" + thisObj.attr("data-id") + "]").remove();
+
+            if (sectionname === "hobbies" || sectionname === "languages" || sectionname === "skills") {
+                $(previewselector + " [data-editsection=" + sectionname + "]").remove();
+            }
+        }
+        else {
+
+            var titleheight = Math.ceil(thisObj.find(".sidebar-title").outerHeight(true));
+
+            titleheight = parseInt(titleheight) || Math.ceil(thisObj.find(".section-title").outerHeight(true));
+
+            titleheight = parseInt(titleheight) || 0;
+
+            var selector = ".section-item-text";
+
+            //console.info("TITLE HEIGHT: " + titleheight);
+
+            sectionstart = sectionstart - Math.ceil(thisObj.outerHeight(true)) + titleheight;
+            if (config.base.verboseLog) console.info("Sectionstart : " + sectionstart);
+
+            var sectiontext = ""; //$("#resume-preview [data-editsection=" + sectionname + "] [data-id=" + $(this).attr("data-id") + "] .section-item-text").html();
+            var sectiontextsplit = ""; //$("#resume-preview2 [data-editsection=" + sectionname + "] [data-id=" + $(this).attr("data-id") + "] .section-item-text").html();
+
+            var customselector = ".sidebar-paragraph";
+
+            var divdifference = 0;
+
+            var childcount = 0;
+
+            $(customselector, thisObj).children().each(function () {
+                childcount++;
+                divdifference = divdifference + Math.ceil($(this).outerHeight(true));
+            });
+
+            if (divdifference < Math.ceil(thisObj.outerHeight(true))) {
+
+                if (sectionname !== "hobbies") {
+                    //sectionstart = sectionstart + (Math.ceil(thisObj.outerHeight(true)) - divdifference);
+                }
+                //alert(divdifference);
+            }
+
+            if (config.base.verboseLog) console.info("Child count: " + childcount);
+            if (config.base.verboseLog) console.info("Div difference: " + divdifference);
+
+            //if (sectionname === "hobbies") {
+            //    customselector = ".sidebar-text p";
+            //}
+
+            //section-item-text
+            $(customselector, thisObj).each(function () {
+
+                var thisheight = Math.ceil($(this).outerHeight(true));
+                // console.info("This height: " + thisheight);
+
+                if (!$.isNumeric(thisheight))
+                    thisheight = 0;// $(this).outerHeight(true);
+
+                sectionstart = sectionstart + thisheight;
+
+                //console.info("This height: " + thisheight);
+                if (config.base.verboseLog) console.info("Sectiontext start: " + sectionstart);
+
+                var count = 0;
+
+                if (config.base.verboseLog) console.info("Max height: " + maxHeight);
+
+                if (sectionstart < maxHeight) {
+
+                    var thistagname = "";
+
+                    splitdone = true;
+
+                    if (config.base.verboseLog) console.info("UL P: " + thistagname);
+
+                    var tmplist = "";
+                    var tmplistsplit = "";
+
+                    //console.info("Sectiontext add: " + $(this).html());
+
+                    try {
+                        sectiontext = sectiontext + $(this)[0].outerHTML;
+                    } catch (e) {
+                        sectiontext = sectiontext + $(this).html();
+                    }
+
+                    if (config.base.verboseLog) console.info("Sectiontext add: " + sectiontext);
+                }
+                else {
+                    if (config.base.verboseLog) console.info("Sectionsplit text add: " + $(this)[0].outerHTML);
+                    sectiontextsplit = sectiontextsplit + $(this)[0].outerHTML;
+                    //sectiontextsplit = sectiontextsplit + $(this).prev()[0].outerHTML;
+                    //$("#resume-preview [data-editsection=" + sectionname + "] [data-id=" + $(this).attr("data-id") + "]").remove();
+                }
+
+                count++;
+            });
+
+            //Set sectiontext
+            if (config.base.verboseLog) console.info("sectiontext: " + sectiontext);
+            if (config.base.verboseLog) console.info("sectiontextsplit: " + sectiontextsplit);
+
+            //console.info("Customsection: " + sectionname + " : " + thisObj.attr("data-id"));
+
+            $(previewselector + " [data-editsection=" + sectionname + "] .sidebar-content").empty();
+            $(previewselector + " [data-editsection=" + sectionname + "] .sidebar-content").html(sectiontext);
+            $(nextpageselector + " [data-editsection=" + sectionname + "] .sidebar-content").html(sectiontextsplit);
+
+        }
+
+        if (!splitdone) {
+
+            //if (sectionname === "customsections") {
+            //    // $("#resume-preview2 [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.attr("data-id") + "]").find(".sidebar-title").first().remove();
+            //}
+            //else {
+            //    $("#resume-preview2 [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.attr("data-id") + "]").find(".section-item-title").first().remove();
+            //    $("#resume-preview2 [data-editsection=" + sectionname + "]").find("[data-id=" + thisObj.attr("data-id") + "]").find(".section-item-subtitle").first().remove();
+            //    //$("#resume-preview2 [data-editsection=" + sectionname + "] [data-id=" + $(this).attr("data-id") + "] .section-item-text").empty();
+            //}
+            if (sectiontext != "") {
+                $(nextpageselector + " [data-editsection=" + sectionname + "] .sidebar-title").first().remove();
+            }
+        }
+
+        if (sectiontext == "") {
+            result = true;
+        }
+        else {
+            result = false;
+        }
+    }
+
+    return result;
+}
+
+function PremiumFunction(pages, isPremium, isPreview, isLogged, isresume, ispuser) {
+
+    //Premium functions
+
+    var previewselector = "#resume-preview";
+
+    if (!isresume) {
+        previewselector = "#coverletter-preview";
+    }
+
+    if (isPremium === false && isPreview === false && isLogged === true) {
+
+        //var fontfamily = $("#resume-preview").classList;
+
+        var fontfamily = $(previewselector).attr("class").match(/fontfamily[\w-]*\b/);
+
+        if (fontfamily === "")
+            fontfamily = 1;
+
+        fontfamily = fontfamily.toString().replace("fontfamily-", "");
+
+        //if (globaltemplateid === 2) {
+        if (pages > 1) {
+            AddPremiumReminder("Pages");
+        }
+        else if (colorpicked != "") {
+
+            AddPremiumReminder("Color");
+        }
+        else if (fontfamily > 2) {
+            AddPremiumReminder("Font");
+        }
+        else if (ispuser) {
+            $("#upgrade-reminder").remove();
+        }
+        else {
+            $(".pdf-link").addClass("submit-link");
+            RemovePremiumReminder();
+        }
+        //}
+        //else {
+        //    AddPremiumReminder("Template");
+        //}
+    }
+    else {
+        RemovePremiumReminder();
+    }
+}
+
+function AddPremiumReminder(remindertype) {
+
+    $(".exportpdflink").removeClass("exportlink");
+    $(".pdf-link").attr("upgrade-modal", "dont");
+
+    var message = document.getElementById("resource.PleaseUpgrade").value;
+    var upgradenow = document.getElementById("resource.UpgradeNow").value;
+
+    if (remindertype === "Pages") {
+        message = document.getElementById("resource.MoreThanOne").value;
+    }
+    else if (remindertype === "Template") {
+        message = document.getElementById("resource.PremiumTemplate").value;
+    }
+    else if (remindertype === "Color") {
+        message = document.getElementById("resource.PremiumColor").value;
+    }
+    else if (remindertype === "Font") {
+        message = document.getElementById("resource.Font").value;
+    }
+    else {
+        $(".pdf-link").addClass("submit-link");
+        RemovePremiumReminder();
+    }
+
+    if ($("#upgrade-reminder").length < 1) {
+        $('.body-content').after('<aside class="d-flex justify-content-center position-sticky" style="bottom: 0; height: 0; z-index: 1;"><div id="upgrade-reminder" class="alert alert-warning position-relative alert-dismissible shadow animate__animated animate__slideInUp" role="alert" data-dismiss="alert" aria-label="Close"><span class="mr-2 align-middle"><i class="fas fa-exclamation-triangle fa-fw fa-lg"></i></span><span class="align-middle">' + message + '</span><button type="button" class="btn btn-sm btn-warning font-weight-bold ml-3 ml-md-5">' + upgradenow + '</button></div></aside>');
+    }
+
+}
+
+function RemovePremiumReminder() {
+
+    $(".pdf-link").removeClass("upgrade-modal");
+    $(".pdf-link").removeAttr("upgrade-modal");
+    $("#upgrade-reminder").remove();
+}

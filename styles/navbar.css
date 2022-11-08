@@ -1,0 +1,204 @@
+*{
+    box-sizing: border-box;
+}
+body{
+    margin: 0px;
+    padding: 0px;
+    font-family: 'proxima-nova', Helvetica, Arial, sans-serif;
+  
+}
+#main{
+    background-color: #24bc88 ;
+    border-radius: 0px 0px 0px 300px;
+    margin-top: 0px;
+    
+}
+#navbar{
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin: auto;
+    margin-top: 0px;
+    padding: 20px;
+    color: white;
+    border: 0px solid red;
+    position: fixed;
+         
+} 
+.active_navbar{
+    background-color: white;
+    border-radius: 0px 0px 25px 25px;
+}
+.active_navbar #logo a h1,
+.active_navbar #content a h1{
+    color:#333333;
+}
+.active_navbar #join button{
+    background-color: #37ae99;
+    color: white;
+}
+#navbar>div> a{
+    color: white;
+    text-decoration: none;
+}
+#logo{
+    width: 15%;
+    display: flex;
+    justify-content: space-around;
+    justify-content: space-between;
+    font-family: serif - 400;
+    font-size: 14px;
+}
+#logo a h1{
+    font-size: 18px;
+    color: white;
+}
+#content{
+    width: 70%;
+}
+#content a{
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+} 
+#content a h1{
+    color: white;
+}
+
+#logo>img{
+    width: 30%;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}
+button{
+    background-color: white;
+    border: 0px;
+    font-size: 15px;
+    font-weight: bold;
+    color:  #24bc88;
+    border-radius: 25px;
+    margin: auto;
+    padding: 20px;
+    
+}
+button:hover{
+    color:  #0f704e; 
+    border: 1px solid white;
+}
+
+.arrow_down {
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    margin: auto;
+    padding: 3px;
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+}
+h1:hover{
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+#features{
+    display: block;
+}
+#drop_down{
+    display: none;
+    position: relative;
+}
+#drop_down_content{
+    display: flex;
+    justify-content: space-around;
+    position: fixed;
+    background-color: white;
+    color: black;
+    font-size: 20px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 20px;
+}
+#drop_down_content ul li span{
+    font-size: 10px;
+    border: 0px solid red;
+}
+#drop_down_content ul li{
+    border: 0px solid red;
+    margin-top: 30px;
+}
+#features:hover #drop_down{
+    display: block;
+}
+
+#top{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: auto;
+    width: 100%;
+   
+    
+}
+#top_left{  
+    width: 60%;
+    color: white;
+    padding-left: 60px;
+   
+}
+#top_left>p:nth-child(1),
+#top_left>p:nth-child(2){
+    font-size: 60px;
+    width: 100%;
+    font-weight: bolder;
+    margin: 0px;
+    padding: 0px;
+    font-family: proxima-nova-800, Helvetica, Arial, sans-serif;
+}
+#top_left>p:nth-child(3){
+    font-size: 30px;
+    width: 100%;
+    font-family: proxima-nova-700, Helvetica, Arial, sans-serif;
+    font-weight: bold;
+}
+#top_left>p:nth-child(4){
+    font-size: 20px;
+    width: 100%;
+    font-family: proxima-nova-500, Helvetica, Arial, sans-serif;
+    
+}
+#top_right{
+    margin: auto;
+    padding-top: 100px;
+}
+   
+#top_right>img{
+   width: 80%;
+    margin: auto;
+    margin-right: 0px;
+    padding: 10px 100px;
+}
+#email{
+    width: 100%;
+    display: flex;
+}
+#email>button,#email>input{
+    margin: 0px;
+    padding: 15px;
+    border-radius: 25px;
+    border: 0px;
+    color: white;
+    width: 50%;
+   
+}
+#email>button{
+    background-color:#f94642 ;
+    margin-left: -40px;
+}
+#top_logo{
+    display: flex;
+    justify-content: space-around;
+    margin: auto;
+}
+#top_logo>img{
+    margin: 40px 10px 10px 10px;
+    width: 30%;
+}
